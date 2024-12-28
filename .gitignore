@@ -1,0 +1,50 @@
+credentials.py
+
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__
+
+# Virtual environment directories
+/venv/
+/env/
+/.venv/
+
+# Django-specific files
+*.log
+*.sqlite3
+*.db
+
+# Ignore environment variable files for Django
+/*.env
+/.env
+
+# React (Node.js) related files
+node_modules/
+build/
+dist/
+*.log
+
+# Ignore environment variable files for React
+.env
+.env.local
+.env.development
+.env.production
+
+# IDEs and editor files
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Other files to ignore
+*.bak
+*.swp
+*.swo
+
+# Optional: Ignore the Django media and static files if not tracked by git
+/media/
+/static/
+
