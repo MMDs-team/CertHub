@@ -47,4 +47,4 @@ Thumbs.db
 # Optional: Ignore the Django media and static files if not tracked by git
 /media/
 /static/
-
+/backend/static/
