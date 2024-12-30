@@ -1,4 +1,5 @@
 credentials.py
+service.json
 
 # Ignore Python bytecode files
 *.pyc
