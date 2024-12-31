@@ -1,0 +1,16 @@
+
+
+.main-wrapper {
+    margin-right: 5rem;
+    min-height: inherit;
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .main-wrapper {
+        margin-right: 0;
+        margin-bottom: 2rem;
+    }
+    
+}
