@@ -184,8 +184,7 @@ def get_certs(request, pk):
     with zipfile.ZipFile(zip_file_path, 'w') as zipf:
         for file_path in certs:
             if os.path.exists(file_path): zipf.write(file_path, arcname=os.path.basename(file_path))
-            else: print(f"Warning: {file_path} does not exist and will be skipped.")
-
+            
     for cert in certs: os.remove(cert)
 
     doc = find_first_file(str(pk))
