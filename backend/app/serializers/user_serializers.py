@@ -1,5 +1,6 @@
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
@@ -10,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'organization', 'isAdmin']
 
     def get_organization(self, obj):
-        return obj.is_staff
+        return obj.profile.organization if hasattr(obj, 'profile') else None
 
     def get_isAdmin(self, obj):
         return obj.is_staff
@@ -31,5 +32,4 @@ class UserSerializerWithToken(UserSerializer):
         return obj.is_staff
 
     def get_organization(self, obj):
-        return obj.is_staff
-        return obj.organization
+        return obj.profile.organization if hasattr(obj, 'profile') else None
