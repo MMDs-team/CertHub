@@ -7,9 +7,6 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   return (
     <div >
-        
-        <Row className='m-0' style={{ height: '3.5rem', backgroundColor: 'rgb(6, 57, 73)'}}></Row>
-
         <Row className='m-0' style={{backgroundColor: '#48d6d2'}}>
           <Col className='p-4' xs={12} md={8} lg={6}>
             <Image 
@@ -49,6 +46,9 @@ const Home = () => {
             
 
           </Col>
+        </Row>
+        <Row>
+            
         </Row>
 
     </div>
