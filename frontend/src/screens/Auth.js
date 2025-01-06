@@ -11,8 +11,9 @@ import '../static/styles/auth.css';
 
 
 const Auth = () => {
+
   return (
-    <Container className='p-4' style={{minHeight : 'inherit', display:'flex', flexDirection: 'column', justifyContent:'center'}}>
+    <Container className='p-4 py-lg-0' style={{minHeight : 'inherit', display:'flex', flexDirection: 'column', justifyContent:'center'}}>
       <Row className='p-1 p-md-3 p-lg-5 border bg-secondary'>
         <Col md={12} lg={6} className='bg-light'>
           <Routes>

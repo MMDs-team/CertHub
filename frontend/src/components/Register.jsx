@@ -1,6 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { IP, PORT } from '../CREDENTIALS';
+import { UserContext } from '../context/UserContext';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -10,7 +13,12 @@ const Register = () => {
         email: '',
         password: '',
         confirmPassword: ''
-    })
+    });
+
+    const [isSubmiting, setIsSubmiting] = useState(false);
+    
+    const { setUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
     const firstNameRef = useRef(null);
     const lastNameRef = useRef(null);
@@ -36,7 +44,34 @@ const Register = () => {
         }
     }
 
-    const handleSubmit = (e) => {
+    const chekInputField = () => {
+        return true;
+    }
+
+    const handleSubmit = async (e) => {
+        try {
+            setIsSubmiting(true);
+            if (!chekInputField()) return new Error('Errrr');
+            const {data} = await axios.post(`http://${IP}:${PORT}/api/user/register`, {
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                organization: formData.organization,
+                email: formData.email,
+                password: formData.password
+            }, {  headers: { 'Content-Type': 'application/json' }});
+
+            console.log("registerd");
+            localStorage.setItem("user", JSON.stringify({userInfo:data}));
+            setUser(data);
+
+            navigate('/');
+        } catch (err) {
+            console.log('error while Registering!');
+            console.log(err);
+        } finally {
+            setIsSubmiting(false);
+        }
+
         e.preventDefault();
     }
 
@@ -141,7 +176,7 @@ const Register = () => {
                     />
                     <Form.Label>تایید رمز</Form.Label>
                 </Form.Group>
-                <Button type="submit" className="w-100 mb-5" variant="primary" >ایجاد حساب</Button>
+                <Button type="submit" className="w-100 mb-5" variant="primary" active={isSubmiting}>ایجاد حساب</Button>
                 <Button type="submit" className="w-100 mb-3" variant="outline-primary">
                   
                   <svg className="icon" viewBox="0 0 24 24" style={{widows:'1.7rem', height:'1.7rem'}}>

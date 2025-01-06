@@ -1,12 +1,20 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'
+import { IP, PORT } from '../CREDENTIALS';
+import { UserContext } from '../context/UserContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-    })
+    });
+
+    const [isSubmiting, setIsSubmiting] = useState(false);
+
+    const { setUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
@@ -28,7 +36,26 @@ const Login = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
+
+        try {
+            setIsSubmiting(true);
+            const {data} = await axios.post(`http://${IP}:${PORT}/api/user/login`, {
+                email: formData.email,
+                password: formData.password
+            }, {  headers: { 'Content-Type': 'application/json' }});
+
+            console.log("logged in");
+            localStorage.setItem("user", JSON.stringify({userInfo:data}));
+            setUser(data);
+
+            navigate('/');
+        } catch (err) {
+            console.log('error while logging!');
+        } finally {
+            setIsSubmiting(true);
+        }
+
         e.preventDefault();
     };
 
@@ -68,7 +95,7 @@ const Login = () => {
           </Form.Group>
 
           
-          <Button type="submit" className="w-100 mb-5 p-2" variant="primary" >ورود به حساب</Button>
+          <Button type="submit" className="w-100 mb-5 p-2" variant="primary" active={isSubmiting}>ورود به حساب</Button>
           <Button type="submit" className="w-100 mb-3 border-2" variant="outline-primary">
             
             <svg className="icon" viewBox="0 0 24 24" style={{widows:'1.7rem', height:'1.7rem'}}>
@@ -81,7 +108,7 @@ const Login = () => {
             ورود با حساب گوگل 
           
           </Button>
-          <p className="text-center">از قبل حساب دارید؟<Link to="/auth/register"> ورود به حساب </Link></p>
+          <p className="text-center">حسابی ندارید ؟<Link to="/auth/register"> ایجاد حساب </Link></p>
          
         </Form>
       </Container>

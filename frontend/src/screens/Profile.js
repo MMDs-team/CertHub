@@ -1,15 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
-
-const user = {
-  firstname: 'محمد',
-  lastname: 'قادری',
-  email: 'email@example.com',
-  profilePicture: 'https://via.placeholder.com/150',
-  organization: 'Urmia University computer Student',
-};
+import { UserContext } from '../context/UserContext';
 
 const Profile = () => {
+
+  const user = useContext(UserContext);
+
   return (
     <>
     
