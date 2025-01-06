@@ -1,5 +1,6 @@
 credentials.py
 credentials.js
+service.json
 
 # Ignore Python bytecode files
 *.pyc

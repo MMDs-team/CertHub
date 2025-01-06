@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from app.models import Template
-from app.serializers.UserSerializers import SimpleUserSerializer
+from app.serializers.user_serializers import UserSerializer
 
 class TemplateSerializer(serializers.ModelSerializer):
     owner = serializers.SerializerMethodField(read_only=True)
 
     def get_owner(self, obj):
         user = obj.owner
-        serializer = SimpleUserSerializer(user, many=False)
+        serializer = UserSerializer(user, many=False)
 
         return serializer.data if user else {}
 
