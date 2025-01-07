@@ -5,6 +5,8 @@ import aspose.words as aw
 
 from credentials import SERVICE_ACCOUNT_FILE
 
+from django.core.files.base import ContentFile
+
 from docx import Document
 from docx2pdf import convert
 
@@ -30,17 +32,56 @@ def get_public_templates(request):
 
 @api_view(['GET'])
 def get_template(request, pk):
-    ...
+    try:
+        temp = Template.objects.get(pk=pk)
+        serializer = TemplateSerializer(temp, many=False)
+        return Response(serializer.data)
+    except :
+        message = {'detail': 'No template found with this id'}
+        return Response(message, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def create_template(request):
     # Get the 'id' from query parameters, it can be None if not provided
     pk = request.GET.get('pk')  
-    ...
+    data = request.data
+
+    temp = Template.objects.create(
+        image = data['image'],
+        is_public = data['is_public'],
+        is_active = data['is_active'] 
+    )
+
+    if pk != None:
+        file_name = f'{temp.template_id}.docx'
+        doc = Document()
+        doc_io = ContentFile('')
+        doc.save(doc_io)
+        temp.file.save(file_name, doc_io)
+        temp.usage = 1
+
+    else :
+        org_temp = Template.objects.get(pk=pk)
+        temp.file = org_temp.file
+        temp.usage = org_temp + 1
+    
+
+    temp.save()
+    serializer = TemplateSerializer(temp, many=False)
+    return Response(serializer.data)
+
 
 @api_view(['DELETE'])
 def remove_template(request, pk):
-    ...
+    try:
+        temp = Template.objects.get(pk=pk)
+        temp.delete()
+        message = {'detail': 'Template deleted'}
+        return Response(message, status=status.HTTP_204_NO_CONTENT)
+    except :
+        message = {'detail': 'No template found with this id'}
+        return Response(message, status=status.HTTP_404_NOT_FOUND)
 
 
 PATTERN = '##'
