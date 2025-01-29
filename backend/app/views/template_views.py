@@ -44,7 +44,7 @@ def get_template(request, pk):
 @api_view(['POST'])
 def create_template(request):
     # Get the 'id' from query parameters, it can be None if not provided
-    pk = request.GET.get('pk')  
+    pk = request.data.get('pk')  
 
     data = request.data
     temp = Template.objects.create(
@@ -61,14 +61,12 @@ def create_template(request):
         buffer.seek(0)
         temp.file.save(file_name, ContentFile(buffer.read()))
         buffer.close()
-
         temp.usage = 1
 
     else :
-        print("test")
         org_temp = Template.objects.get(pk=pk)
         temp.file = org_temp.file
-        temp.usage = org_temp + 1
+        temp.usage = org_temp.usage + 1
     
 
     temp.save()
