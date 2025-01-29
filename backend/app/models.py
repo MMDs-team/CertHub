@@ -5,7 +5,7 @@ class Template(models.Model):
     template_id = models.AutoField(primary_key=True, editable=False)
 
     image = models.ImageField(upload_to="templates/images", blank=True)
-    file = models.FileField(upload_to="templates/files")
+    file = models.FileField(upload_to="templates/files", blank=True)
 
     is_public = models.BooleanField(default=False, blank=True)
     usage = models.PositiveIntegerField(default=0, blank=True)
@@ -16,7 +16,6 @@ class Template(models.Model):
     def __str__(self):
         return f"Template {self.template_id} - {self.file.name}"
 
-# UserProfile model
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     organization = models.CharField(max_length=255, blank=True, null=True)

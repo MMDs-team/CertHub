@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth.models import User
+
+from ..models import UserProfile
+
 from django.contrib.auth.hashers import make_password
 from ..serializers.user_serializers import  UserSerializer, UserSerializerWithToken
 from typing import Dict, Any
@@ -24,7 +26,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @api_view(['GET'])
 # @permission_classes([IsAdminUser])
 def get_all_users(request):
-    users = User.objects.all()
+    users = UserProfile.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
@@ -32,7 +34,7 @@ def get_all_users(request):
 # @permission_classes([IsAdminUser])
 def get_single_user(request, pk):
     try:
-        user = User.objects.get(pk=pk)
+        user = UserProfile.objects.get(pk=pk)
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
     except :
@@ -43,7 +45,7 @@ def get_single_user(request, pk):
 def register_user(request):
     try:
         data = request.data
-        user = User.objects.create(
+        user = UserProfile.objects.create(
             first_name = data['first_name'],
             last_name = data['last_name'],
             username = data['email'],

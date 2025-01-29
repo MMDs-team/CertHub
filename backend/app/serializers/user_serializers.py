@@ -1,5 +1,5 @@
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.models import User
+from ..models import UserProfile
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -7,7 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
     organization = serializers.SerializerMethodField(read_only=True)
     isAdmin = serializers.SerializerMethodField(read_only=True)
     class Meta:
-        model = User
+        model = UserProfile
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'organization', 'isAdmin']
 
     def get_organization(self, obj):
@@ -21,7 +21,7 @@ class UserSerializerWithToken(UserSerializer):
     isAdmin = serializers.SerializerMethodField(read_only=True)
     token = serializers.SerializerMethodField(read_only=True)
     class Meta:
-        model = User
+        model = UserProfile
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'organization', 'isAdmin', 'token']
 
     def get_token(self, obj):
