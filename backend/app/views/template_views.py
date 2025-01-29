@@ -45,23 +45,27 @@ def get_template(request, pk):
 def create_template(request):
     # Get the 'id' from query parameters, it can be None if not provided
     pk = request.GET.get('pk')  
-    data = request.data
 
+    data = request.data
     temp = Template.objects.create(
         image = data['image'],
         is_public = data['is_public'],
         is_active = data['is_active'] 
     )
 
-    if pk != None:
+    if pk == None:
         file_name = f'{temp.template_id}.docx'
         doc = Document()
-        doc_io = ContentFile('')
-        doc.save(doc_io)
-        temp.file.save(file_name, doc_io)
+        buffer = io.BytesIO()
+        doc.save(buffer) 
+        buffer.seek(0)
+        temp.file.save(file_name, ContentFile(buffer.read()))
+        buffer.close()
+
         temp.usage = 1
 
     else :
+        print("test")
         org_temp = Template.objects.get(pk=pk)
         temp.file = org_temp.file
         temp.usage = org_temp + 1
