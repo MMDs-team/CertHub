@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'isAdmin', 'organization']
 
     def get_organization(self, obj):
-        return obj.profile.organization if hasattr(obj, 'profile') else None
+        return obj.organization 
 
     def get_isAdmin(self, obj):
         return obj.user.is_staff
@@ -54,10 +54,10 @@ class UserSerializerWithToken(UserSerializer):
         return str(token.access_token)
 
     def get_organization(self, obj):
-        return obj.profile.organization if hasattr(obj, 'profile') else None
+        return obj.organization 
 
     def get_isAdmin(self, obj):
-        return obj.is_staff
+        return obj.user.is_staff
 
     def get_username(self, obj):
         return obj.user.username 

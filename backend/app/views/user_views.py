@@ -6,6 +6,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from ..models import UserProfile
+from django.contrib.auth.models import User
 
 from django.contrib.auth.hashers import make_password
 from ..serializers.user_serializers import  UserSerializer, UserSerializerWithToken
@@ -37,7 +38,7 @@ def get_single_user(request, pk):
         user = UserProfile.objects.get(pk=pk)
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
-    except :
+    except:
         message = {'detail': 'No user found with this id'}
         return Response(message, status=status.HTTP_404_NOT_FOUND)
 
@@ -45,15 +46,20 @@ def get_single_user(request, pk):
 def register_user(request):
     try:
         data = request.data
-        user = UserProfile.objects.create(
+        user = User.objects.create(
             first_name = data['first_name'],
             last_name = data['last_name'],
             username = data['email'],
             email = data['email'],
-            organization = data['organization'],
             password = make_password(data['password']) 
         )
-        serializer = UserSerializerWithToken(user, many=False)
+        
+        user_profile = UserProfile.objects.create(
+            user = user,
+            organization = data['organization'],
+        )
+        
+        serializer = UserSerializerWithToken(user_profile, many=False)
         return Response(serializer.data)
     except:
         message = {'detail': 'Can not register user! try again'}
@@ -74,13 +80,14 @@ def update_user_profile(request):
         data = request.data
         serializer = UserSerializerWithToken(user, many=False)
 
-        user.first_name = data['first_name']
-        user.last_name = data['last_name']
-        user.email = data['email']
-        user.username = data['email']
-        user.organization = data['organization'],
-        if data['password'] != '':
-            user.password = make_password(data['password'])
+        if len(data['first_name']): user.user.first_name = data['first_name'],
+        if len(data['last_name']): user.user.last_name = data['last_name'],
+        if len(data['email']):
+            user.user.email = data['email']
+            user.user.username = data['email']
+        if len(data['organization']): user.organization = data['organization'],
+        if len(data['password']): user.user.password = make_password(data['password'])
+
         user.save()
         return Response(serializer.data)
     except:
