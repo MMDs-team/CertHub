@@ -36,7 +36,7 @@ def get_template(request, pk):
         temp = Template.objects.get(pk=pk)
         serializer = TemplateSerializer(temp, many=False)
         return Response(serializer.data)
-    except :
+    except:
         message = {'detail': 'No template found with this id'}
         return Response(message, status=status.HTTP_404_NOT_FOUND)
 
@@ -50,24 +50,24 @@ def create_template(request):
     temp = Template.objects.create(
         image = data['image'],
         is_public = data['is_public'],
-        is_active = data['is_active'] 
+        is_active = data['is_active'], 
+        usage = 1
     )
+    file_name = f'{temp.template_id}.docx'
 
     if pk == None:
-        file_name = f'{temp.template_id}.docx'
         doc = Document()
         buffer = io.BytesIO()
         doc.save(buffer) 
         buffer.seek(0)
         temp.file.save(file_name, ContentFile(buffer.read()))
         buffer.close()
-        temp.usage = 1
 
-    else :
+    else:
         org_temp = Template.objects.get(pk=pk)
-        temp.file = org_temp.file
-        temp.usage = org_temp.usage + 1
-    
+        temp.file.save(file_name, org_temp.file)
+        org_temp.usage += 1 
+        org_temp.save()
 
     temp.save()
     serializer = TemplateSerializer(temp, many=False)
@@ -81,7 +81,7 @@ def remove_template(request, pk):
         temp.delete()
         message = {'detail': 'Template deleted'}
         return Response(message, status=status.HTTP_204_NO_CONTENT)
-    except :
+    except:
         message = {'detail': 'No template found with this id'}
         return Response(message, status=status.HTTP_404_NOT_FOUND)
 

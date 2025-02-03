@@ -11,7 +11,7 @@ class UserProfile(models.Model):
 class Template(models.Model):
     template_id = models.AutoField(primary_key=True, editable=False)
 
-    image = models.ImageField(upload_to="templates/images", blank=True)
+    image = models.ImageField(upload_to="templates/images", blank=True, null=True)
     file = models.FileField(upload_to="templates/files", blank=True)
 
     is_public = models.BooleanField(default=False, blank=True)
