@@ -14,7 +14,7 @@ const Navbar = () => {
           </Link>
         </li>
         <li className='nav-list-item'>
-          <Link to="/templates/use">
+          <Link to="/templates/new">
             <i className="fa-regular fa-square-plus"></i>
             {/* <i className="fa-solid fa-pencil"></i> */}
             <span>ساخت قالب</span>

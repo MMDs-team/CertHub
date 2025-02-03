@@ -41,7 +41,7 @@ const Login = () => {
         try {
             setIsSubmiting(true);
             const {data} = await axios.post(`http://${IP}:${PORT}/api/user/login`, {
-                email: formData.email,
+                username: formData.email,
                 password: formData.password
             }, {  headers: { 'Content-Type': 'application/json' }});
 

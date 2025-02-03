@@ -27,11 +27,15 @@ const Profile = () => {
                 <Card.Body>
                   <Row>
                     <Col md={4} className="text-center ">
-                      <img
-                        src={user.profilePicture}
-                        alt="Profile"
-                        className="img-fluid rounded-circle mb-3"
-                      />
+                        {!user.img ? 
+                            <i className='fa-regular fa-user display-5'/>
+                            :
+                            <img
+                                src={user.profilePicture}
+                                alt="Profile"
+                                className="img-fluid rounded-circle mb-3"
+                            />
+                        }
                     </Col>
                     <Col>
                       
