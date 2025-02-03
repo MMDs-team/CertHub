@@ -6,23 +6,29 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from ..models import UserProfile
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
 from django.contrib.auth.hashers import make_password
 from ..serializers.user_serializers import  UserSerializer, UserSerializerWithToken
 from typing import Dict, Any
 
-# token serializer
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs: Dict[str, Any]) -> Dict[str, str]:
-        data = super().validate(attrs)
-        serializer = UserSerializerWithToken(self.user).data
-        for k, v in serializer.items():
-            data[k] = v
-        return data
-    
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+@api_view(['POST'])
+def login_user(request):
+    data = request.data
+    username = data['username']
+    password = data['password']
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        pk = user.profile.id
+        profile = UserProfile.objects.get(pk=pk)
+        login(request, user)
+        serializer = UserSerializerWithToken(profile, many=False)
+        return Response(serializer.data)
+    else:
+        message = {'detail': 'invalid username or password!'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 # @permission_classes([IsAdminUser])
@@ -91,5 +97,5 @@ def update_user_profile(request):
         user.save()
         return Response(serializer.data)
     except:
-        message = {'detail': 'Can update profile! try again'}
+        message = {'detail': 'Can not update profile! try again'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
