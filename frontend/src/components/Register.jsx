@@ -49,6 +49,7 @@ const Register = () => {
     }
 
     const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
             setIsSubmiting(true);
             if (!chekInputField()) return new Error('Errrr');
@@ -71,8 +72,6 @@ const Register = () => {
         } finally {
             setIsSubmiting(false);
         }
-
-        e.preventDefault();
     }
 
     return (

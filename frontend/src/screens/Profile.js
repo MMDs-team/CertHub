@@ -1,10 +1,18 @@
 import React, { useContext } from 'react';
-import { Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
+
+
 
 const Profile = () => {
 
-  const user = useContext(UserContext);
+  const { user, setUser} = useContext(UserContext);
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    setUser(false);
+    console.log('logged out')
+  }
 
   return (
     <>
@@ -33,7 +41,7 @@ const Profile = () => {
                     </Col>
                   </Row>
                     <Button variant='primary' style={{float: 'left'}}>ویرایش</Button>
-                    <Button variant='outline-danger' className='ms-3' style={{float: 'left'}}>خروج از حساب</Button>
+                    <Button variant='outline-danger' className='ms-3' style={{float: 'left'}} onClick={logout}>خروج از حساب</Button>
                 </Card.Body>
               </Card>
             </Col>
