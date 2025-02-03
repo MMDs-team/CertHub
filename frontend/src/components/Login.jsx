@@ -37,7 +37,7 @@ const Login = () => {
     };
 
     const handleSubmit = async (e) => {
-
+        e.preventDefault();
         try {
             setIsSubmiting(true);
             const {data} = await axios.post(`http://${IP}:${PORT}/api/user/login`, {
@@ -52,11 +52,10 @@ const Login = () => {
             navigate('/');
         } catch (err) {
             console.log('error while logging!');
+            console.log(err)
         } finally {
             setIsSubmiting(true);
         }
-
-        e.preventDefault();
     };
 
     return (
