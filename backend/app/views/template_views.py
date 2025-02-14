@@ -12,7 +12,7 @@ from docx2pdf import convert
 
 from json import loads
 
-import os
+import os, pathlib
 import shutil
 from threading import Timer
 
@@ -21,6 +21,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 import zipfile
+
+from django.conf import settings
+IMAGES_ROOT = 'static/images/templates/images'
+FILES_ROOT = 'static/images/templates/files'
 
 @api_view(['GET'])
 def get_public_templates(request):
@@ -48,12 +52,17 @@ def create_template(request):
 
     data = request.data
     temp = Template.objects.create(
-        image = data['image'],
         is_public = data['is_public'],
-        is_active = data['is_active'], 
+        is_active = False,
         usage = 1
     )
     file_name = f'{temp.template_id}.docx'
+    image_name = f'{temp.template_id}.jpg'
+
+    if data['image']:
+        temp.image.save(image_name, data['image'])
+    else:
+        temp.image = data['image']
 
     if pk == None:
         doc = Document()
@@ -78,7 +87,17 @@ def create_template(request):
 def remove_template(request, pk):
     try:
         temp = Template.objects.get(pk=pk)
+
+        file_name = f'{temp.template_id}.docx'
+        image_name = f'{temp.template_id}.jpg'
+        
+        image_path = os.path.join(settings.BASE_DIR, IMAGES_ROOT, image_name)
+        file_path = os.path.join(settings.BASE_DIR, FILES_ROOT, file_name)
+
+        pathlib.Path(image_path).unlink(missing_ok=True)
+        pathlib.Path(file_path).unlink(missing_ok=False)
         temp.delete()
+
         message = {'detail': 'Template deleted'}
         return Response(message, status=status.HTTP_204_NO_CONTENT)
     except:
