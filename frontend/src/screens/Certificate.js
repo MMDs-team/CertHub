@@ -1,21 +1,32 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom';
+import RightPanel from '../components/RightPanel';
+import { Col, Row } from 'react-bootstrap';
 
 const Certificate = () => {
 
     const { doc_id } = useParams();
-    console.log(doc_id);
+    const [isEdit, setIsEdit] = useState(false);
+
+    const [inp, setInp] = useState([]);
+
+
   return (
-    <div style={{height: 'calc(100vh - 10px)'}}>
-        <iframe
-            src={`https://docs.google.com/document/d/${doc_id}/edit`}
-            width="100%"
-            height="100%"
-            frameBorder="0"
-            allowFullScreen
-        ></iframe>
+    <Row style={{height: 'calc(100vh - 10px)', margin: '0'}}  >
+        <Col xs={12} md={isEdit?2:3}>
+            <RightPanel isEdit={isEdit} setIsEdit={setIsEdit} inp={inp} setInp={setInp}/>
+        </Col>
+        <Col sx={12} md={isEdit?10:9} >
+            <iframe
+                src={`https://docs.google.com/document/d/${doc_id}/${isEdit?'edit':'preview'}`}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allowFullScreen
+            ></iframe>
+        </Col>
         
-    </div>
+    </Row>
   )
 }
 

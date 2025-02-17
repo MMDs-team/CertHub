@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { IP, PORT } from "../CREDENTIALS";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
+import { TemplateContext } from "../context/TemplateContext";
+
 
 const CreateTemplate = () => {
 	// const [isPublic, setIsPublic] = useState(false);
@@ -19,6 +21,7 @@ const CreateTemplate = () => {
 	const navigate = useNavigate();
 
 	const { user } = useContext(UserContext);
+	const { setTemplate } = useContext(TemplateContext);
 
 	const cancelHandler = () => {
 		navigate("/");
@@ -37,7 +40,10 @@ const CreateTemplate = () => {
 					},
 				}
 			);
-			console.log(data);
+
+            localStorage.setItem("template", JSON.stringify({template:data}));
+			setTemplate(data);
+			// console.log(data);
 
 			const doc = await axios.get(
 				`http://${IP}:${PORT}/template/make_doc/${data.template_id}`,
