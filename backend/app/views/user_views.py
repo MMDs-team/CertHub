@@ -86,13 +86,13 @@ def update_user_profile(request):
         data = request.data
         serializer = UserSerializerWithToken(user, many=False)
 
-        if len(data['first_name']): user.user.first_name = data['first_name'],
-        if len(data['last_name']): user.user.last_name = data['last_name'],
-        if len(data['email']):
+        if data.get('first_name'): user.user.first_name = data['first_name'],
+        if data.get('last_name'): user.user.last_name = data['last_name'],
+        if data.get('email'):
             user.user.email = data['email']
             user.user.username = data['email']
-        if len(data['organization']): user.organization = data['organization'],
-        if len(data['password']): user.user.password = make_password(data['password'])
+        if data.get('organization'): user.organization = data['organization'],
+        if data.get('password'): user.user.password = make_password(data['password'])
 
         user.save()
         return Response(serializer.data)

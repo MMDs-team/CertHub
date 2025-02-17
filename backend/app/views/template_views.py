@@ -52,14 +52,14 @@ def create_template(request):
 
     data = request.data
     temp = Template.objects.create(
-        is_public = data['is_public'],
+        is_public = False,
         is_active = False,
         usage = 1
     )
     file_name = f'{temp.template_id}.docx'
     image_name = f'{temp.template_id}.jpg'
 
-    if data['image']:
+    if data.get('image'):
         temp.image.save(image_name, data['image'])
     else:
         temp.image = data['image']
