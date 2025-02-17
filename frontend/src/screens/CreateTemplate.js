@@ -6,6 +6,7 @@ import {
 	ButtonGroup,
 	Row,
 	Col,
+	Spinner,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { IP, PORT } from "../CREDENTIALS";
@@ -67,10 +68,10 @@ const CreateTemplate = () => {
 
 	return (
 		<div>
-			<Container>
+			<Container style={{height: '100vh', margin: 'auto auto'}}>
 				<div
 					className="modal show"
-					style={{ display: "block", position: "initial" }}
+					style={{ display: "flex", position: "initial", alignItems: 'center' }}
 				>
 					<Modal.Dialog>
 						<Modal.Header className='bg-dark text-white'>
@@ -114,6 +115,18 @@ const CreateTemplate = () => {
 								disabled={isLoading}
 							>
 								ساخت
+								{isLoading && 
+									<>
+										&nbsp;
+										<Spinner
+											as="span"
+											animation="border"
+											size="sm"
+											role="status"
+											aria-hidden="true"
+									/>
+									</>
+								}
 							</Button>
 						</Modal.Footer>
 					</Modal.Dialog>

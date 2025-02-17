@@ -105,6 +105,11 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
                  افزودن اکسل 
                 &nbsp;<i className="fas fa-file-excel"></i>
             </Button>
+            
+            <Button variant='warning' className='mt-2' onClick={() => editHandler()}>
+                {isEdit?'ذخیره قالب':'ویرایش قالب'}
+            </Button>
+
             <Accordion style={{ padding: '0', display: 'flex', flexDirection: 'column', alignItems:'center', justifyContent: 'center'}}>
                 <Button variant="outline-primary" className='my-2' style={{borderRadius:'50%'}} onClick={() => addItem()}>
                     <i className="fas fa-plus"></i>
@@ -121,9 +126,7 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
                     />
                 ))}
             </Accordion>
-            <Button onClick={() => editHandler()}>
-                {isEdit?'ذخیره قالب':'ویرایش قالب'}
-            </Button>
+            <Button onClick={() => console.log('extracting...')}>دریافت گواهی  </Button>
         </Row>
     )
 }

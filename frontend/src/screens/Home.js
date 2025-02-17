@@ -39,10 +39,10 @@ const Home = () => {
                   را نیز فراهم می‌کند.
                 </p>
 
-                <Link to='/templates'>
+                <Link to='templates/use'>
                   <Button className='bg-primary px-4 py-2' style={{fontFamily: 'Vazir', float: 'left', fontWeight: 'bold'}}>ساخت گواهی</Button>
                 </Link>
-                <Link to='templates/use'>
+                <Link to='templates/new'>
                   <Button variant='outline-primary' className='px-4 ms-2 border-3' style={{fontFamily: 'Vazir', float: 'left', fontWeight: 'bold'}}>ساخت قالب</Button>
                 </Link>
             </div>

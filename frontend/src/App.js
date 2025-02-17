@@ -5,11 +5,14 @@ import Home from './screens/Home';
 import About from './screens/About';
 import Auth from './screens/Auth';
 import Profile from './screens/Profile';
+import History from './screens/History';
 import { UserContext } from './context/UserContext';
 import Redirect from './components/Redirect';
 import './App.css';
 import CreateTemplate from './screens/CreateTemplate';
 import Certificate from './screens/Certificate';
+import Templates from './screens/Templates';
+
 
 function App() {
 
@@ -24,10 +27,11 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/about" element={<About />} />
-                            <Route path="/templates" element={<About />} />
+                            <Route path="/templates" element={<Templates />} />
                             <Route path="/templates/new" element={<CreateTemplate />} />
                             <Route path="/templates/use/:doc_id" element={<Certificate />} />
                             <Route path="/profile" element={<Profile />} />
+                            <Route path="/history" element={<History />} />
                             <Route path="/contact" element={<Auth />} />
                             <Route path="*" element={<Redirect />} />
                         </Routes>
@@ -35,7 +39,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/about" element={<About />} />
-                            <Route path="/templates" element={<About />} />
+                            <Route path="/templates" element={<Templates />} />
                             <Route path="/templates/use:doc_id" element={<About />} />
                             <Route path="/profile/*" element={<Redirect to="/auth/register" />} />
                             <Route path="/auth/*" element={<Auth/>} />

@@ -27,7 +27,7 @@ const Navbar = () => {
           </Link>
         </li>
         <li className='nav-list-item'>
-          <Link to="profile/history">
+          <Link to="/history">
             <i className="fa-solid fa-clock-rotate-left"></i>
             <span>تاریخچه</span>
           </Link>
