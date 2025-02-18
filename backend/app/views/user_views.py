@@ -2,8 +2,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from ..models import UserProfile
 from django.contrib.auth import authenticate, login
@@ -16,15 +14,13 @@ from typing import Dict, Any
 @api_view(['POST'])
 def login_user(request):
     data = request.data
-    username = data['username']
-    password = data['password']
+    username = data.get('username')
+    password = data.get('password')
     user = authenticate(username=username, password=password)
 
     if user is not None:
-        pk = user.profile.id
-        profile = UserProfile.objects.get(pk=pk)
         login(request, user)
-        serializer = UserSerializerWithToken(profile, many=False)
+        serializer = UserSerializerWithToken(user, many=False)
         return Response(serializer.data)
     else:
         message = {'detail': 'invalid username or password!'}
@@ -52,20 +48,16 @@ def get_single_user(request, pk):
 def register_user(request):
     try:
         data = request.data
-        user = User.objects.create(
-            first_name = data['first_name'],
-            last_name = data['last_name'],
-            username = data['email'],
-            email = data['email'],
-            password = make_password(data['password']) 
+        user = UserProfile.objects.create(
+            first_name = data.get('first_name'),
+            last_name = data.get('last_name'),
+            username = data.get('email'),
+            email = data.get('email'),
+            organization = data.get('organization'),
+            password = make_password(data.get('password')) 
         )
         
-        user_profile = UserProfile.objects.create(
-            user = user,
-            organization = data['organization'],
-        )
-        
-        serializer = UserSerializerWithToken(user_profile, many=False)
+        serializer = UserSerializerWithToken(user, many=False)
         return Response(serializer.data)
     except:
         message = {'detail': 'Can not register user! try again'}
@@ -86,13 +78,13 @@ def update_user_profile(request):
         data = request.data
         serializer = UserSerializerWithToken(user, many=False)
 
-        if data.get('first_name'): user.user.first_name = data['first_name'],
-        if data.get('last_name'): user.user.last_name = data['last_name'],
+        if data.get('first_name'): user.user.first_name = data.get('first_name'),
+        if data.get('last_name'): user.user.last_name = data.get('last_name'),
         if data.get('email'):
-            user.user.email = data['email']
-            user.user.username = data['email']
-        if data.get('organization'): user.organization = data['organization'],
-        if data.get('password'): user.user.password = make_password(data['password'])
+            user.user.email = data.get('email')
+            user.user.username = data.get('email')
+        if data.get('organization'): user.organization = data.get('organization'),
+        if data.get('password'): user.user.password = make_password(data.get('password'))
 
         user.save()
         return Response(serializer.data)

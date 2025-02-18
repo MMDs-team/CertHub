@@ -8,7 +8,7 @@ from credentials import SERVICE_ACCOUNT_FILE
 from django.core.files.base import ContentFile
 
 from docx import Document
-from docx2pdf import convert
+# from docx2pdf import convert
 
 from json import loads
 
@@ -51,7 +51,9 @@ def create_template(request):
     pk = request.data.get('pk')  
 
     data = request.data
+    user = request.user 
     temp = Template.objects.create(
+        owner = user,
         is_public = False,
         is_active = False,
         usage = 1
@@ -60,9 +62,9 @@ def create_template(request):
     image_name = f'{temp.template_id}.jpg'
 
     if data.get('image'):
-        temp.image.save(image_name, data['image'])
+        temp.image.save(image_name, data.get('image'))
     else:
-        temp.image = data['image']
+        temp.image = data.get('image')
 
     if pk == None:
         doc = Document()

@@ -2,17 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin 
 from .models import *
 
+class UserProfileAdmin(UserAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'organization', 'is_staff')
+    fieldsets = UserAdmin.fieldsets + (('Additional Info', {'fields': ('organization',)}),)
+
 admin.site.register(Template)
-
-class ProfileInline(admin.StackedInline):
-    model = UserProfile
-    can_delete = False
-    verbose_name_plural = 'profile'
-
-# Define a new User admin
-class UserAdmin(UserAdmin):
-    inlines = (ProfileInline,)
-
-# Re-register UserAdmin
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
