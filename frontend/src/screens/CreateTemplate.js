@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
 	Container,
 	Modal,
 	Button,
-	ButtonGroup,
 	Row,
 	Col,
 	Spinner,
@@ -32,7 +31,7 @@ const CreateTemplate = () => {
 			setIsLoading(true);
 			const requestBody = isEmpty ? {} : { file: "dummyFileContent" };
 			const { data } = await axios.post(
-				`http://${IP}:${PORT}/template/create/`,
+				`http://${IP}:${PORT}/template/create`,
 				requestBody,
 				{
 					headers: {
