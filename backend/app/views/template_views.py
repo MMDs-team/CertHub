@@ -8,12 +8,13 @@ from credentials import SERVICE_ACCOUNT_FILE
 from django.core.files.base import ContentFile
 
 from docx import Document
-from docx2pdf import convert
 
 from json import loads
 
 import os, pathlib
 import shutil
+import subprocess
+
 from threading import Timer
 
 from rest_framework.decorators import api_view
@@ -30,7 +31,7 @@ FILES_ROOT = 'static/images/templates/files'
 def get_public_templates(request):
     templates = Template.objects.all().filter(is_public=True)
     serializers = TemplateSerializer(templates, many=True)
-    
+
     return Response(serializers.data)
 
 
@@ -48,7 +49,7 @@ def get_template(request, pk):
 @api_view(['POST'])
 def create_template(request):
     # Get the 'id' from query parameters, it can be None if not provided
-    pk = request.data.get('pk')  
+    pk = request.data.get('pk')
 
     data = request.data
     temp = Template.objects.create(
@@ -67,7 +68,7 @@ def create_template(request):
     if pk == None:
         doc = Document()
         buffer = io.BytesIO()
-        doc.save(buffer) 
+        doc.save(buffer)
         buffer.seek(0)
         temp.file.save(file_name, ContentFile(buffer.read()))
         buffer.close()
@@ -75,7 +76,7 @@ def create_template(request):
     else:
         org_temp = Template.objects.get(pk=pk)
         temp.file.save(file_name, org_temp.file)
-        org_temp.usage += 1 
+        org_temp.usage += 1
         org_temp.save()
 
     temp.save()
@@ -90,7 +91,7 @@ def remove_template(request, pk):
 
         file_name = f'{temp.template_id}.docx'
         image_name = f'{temp.template_id}.jpg'
-        
+
         image_path = os.path.join(settings.BASE_DIR, IMAGES_ROOT, image_name)
         file_path = os.path.join(settings.BASE_DIR, FILES_ROOT, file_name)
 
@@ -219,7 +220,7 @@ def get_certs(request, pk):
     cols = [str(elem) for elem in loads(request.data.get('cols').replace('\'', '"'))]
     data = [elem for elem in loads(request.data.get('data').replace('\'', '"'))]
     mp = {col_name: idx for idx, col_name in enumerate(cols)}
-    
+
     doc_info = decompose_path(template.file.path)
     certs = []
     for record in data:
@@ -237,16 +238,28 @@ def get_certs(request, pk):
         doc.save(copy_path)
 
         cert_path = os.path.join(f"{doc_info['directory']}", f"{len(certs) + 1}.pdf")
-        aw.Document(copy_path).save(cert_path)
-        certs.append(cert_path)
+        # aw.Document(copy_path).save(cert_path)
+        try:
+            subprocess.run([
+                "soffice",
+                "--headless",  # Run in headless mode (no GUI)
+                "--convert-to", "pdf",
+                "--outdir", os.path.dirname(cert_path),
+                copy_path
+            ], check=True)
+            shutil.move(os.path.join(f"{doc_info['directory']}", f"{doc_info['base_name']}_copy.pdf"), cert_path)
+            certs.append(cert_path)
+            print(f"Conversion successful! PDF saved in '{cert_path}'.")
+        except subprocess.CalledProcessError as e: print(f"Error during conversion: {e}")
+        except FileNotFoundError: print("Error: LibreOffice (soffice) is not installed or not in your PATH.")
 
-    os.remove(copy_path)
+        os.remove(copy_path)
 
     zip_file_path = f"{doc_info['directory']}/{pk}_certs.zip"
     with zipfile.ZipFile(zip_file_path, 'w') as zipf:
         for file_path in certs:
             if os.path.exists(file_path): zipf.write(file_path, arcname=os.path.basename(file_path))
-            
+
     for cert in certs: os.remove(cert)
 
     doc = find_first_file(str(pk))
