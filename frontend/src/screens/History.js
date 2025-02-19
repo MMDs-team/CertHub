@@ -1,10 +1,46 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import ReuseableTemplate from "../components/ReuseableTemplate";
+import { IP, PORT } from "../CREDENTIALS";
+import axios from "axios";
+import { UserContext } from "../context/UserContext";
 
 const History = () => {
 
     const [templates, setTemplates] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const { user } = useContext(UserContext);
+    
+
+    const fetchTemplates = async () => {
+		try {
+			setIsLoading(true);
+			const { data } = await axios.get(
+				`http://${IP}:${PORT}/template/history?from=0&count=12`,
+				{},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+			);
+
+			setTemplates(data);
+			console.log(data);
+		} catch (err) {
+			console.log("error while fetching templates...!");
+			console.log(err);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+    useEffect(() => {
+        fetchTemplates();
+    }, [])
+
     return (
         <Container className="mt-2 mt-md-3 mt-lg-5 px-2 px-md-3 px-lg-5">
             <Row className="mb-4">
