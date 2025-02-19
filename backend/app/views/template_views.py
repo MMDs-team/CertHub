@@ -230,9 +230,10 @@ def get_certs(request, pk):
             'extension': extension
         }
 
-    matching = [str(elem) for elem in loads(request.data.get('matching').replace('\'', '"'))]
-    cols = [str(elem) for elem in loads(request.data.get('cols').replace('\'', '"'))]
-    data = [elem for elem in loads(request.data.get('data').replace('\'', '"'))]
+    matching = [elem for elem in request.data.get('matching')]
+    cols = [elem for elem in request.data.get('cols')]
+    data = [elem for elem in request.data.get('data')]
+    matching = [elem for elem in request.data.get('matching')]
     mp = {col_name: idx for idx, col_name in enumerate(cols)}
     
     doc_info = decompose_path(template.file.path)
