@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Accordion, Badge, Button, Col, Row } from 'react-bootstrap'
+import React, { useContext, useEffect, useState } from 'react'
+import { Accordion, Button, Col, Row, Spinner } from 'react-bootstrap'
 import { TemplateContext } from '../context/TemplateContext';
 import axios from 'axios';
 import { IP, PORT } from '../CREDENTIALS';
@@ -10,6 +10,8 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
 
     const [vars, setVars] = useState([]);
     const [varCnt, setVarCnt] = useState(0);
+    const [isSaveLoading, setIsSaveLoading] = useState(false);
+    const [isVarsLoading, setIsVarsLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
 
@@ -18,7 +20,7 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
 
     const getVarCount = async () => {
 		try {
-			setIsLoading(true);
+			setIsVarsLoading(true);
 			const { data } = await axios.get(
 				`http://${IP}:${PORT}/template/count_fields/${template.template_id}`,
                 {},
@@ -36,7 +38,7 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
 			console.log("error while getting variable count!");
 			console.log(err);
 		} finally {
-			setIsLoading(false);
+			setIsVarsLoading(false);
 		}
 	};
 
@@ -47,7 +49,7 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
 
     const saveTemplate = async () => {
         try {
-            // setIsLoading(true);
+            setIsSaveLoading(true);
             const { data } = await axios.get(
                 `http://${IP}:${PORT}/template/download_doc/${template.template_id}`,
                 {},
@@ -59,19 +61,19 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
                 }
             );
 
-            getVarCount();
+            await getVarCount();
 
         } catch (err) {
             console.log("error while saving template!");
             console.log(err);
         } finally {
-            // setIsLoading(false);
+            setIsSaveLoading(false);
         }
     }
 
     const editHandler = async () => {
         if (isEdit) { // save it
-            saveTemplate();
+            await saveTemplate();
         }
         setIsEdit(!isEdit);
     }
@@ -98,6 +100,45 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
         setInp(newList);
     }
 
+    const getCertificate = async () => {
+        let dataInput = []
+        inp.map(row => {
+            dataInput.push(row['vars']);
+        })
+        
+        let cols = []
+        for (let i = 0; i < varCnt; i++) {
+            cols.push(`##${i}`);
+        }
+
+        console.log(dataInput)
+        try {
+            setIsLoading(true);
+            const { data } = await axios.post(
+                `http://${IP}:${PORT}/template/get_certs/${template.template_id}`,
+                {
+                    data: dataInput,
+                    cols: cols,
+                    matching: cols
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+
+            console.log(data);
+
+        } catch (err) {
+            console.log("error while saving template!");
+            console.log(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
 
     return (
         <Row className='pt-3 px-2'>
@@ -106,8 +147,9 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
                 &nbsp;<i className="fas fa-file-excel"></i>
             </Button>
             
-            <Button variant='warning' className='mt-2' onClick={() => editHandler()}>
+            <Button variant='warning' className='mt-2' onClick={() => editHandler()} disabled={isSaveLoading}>
                 {isEdit?'ذخیره قالب':'ویرایش قالب'}
+                {isSaveLoading && <Spinner animation='border' className='me-2' size='sm'/>}
             </Button>
 
             <Accordion style={{ padding: '0', display: 'flex', flexDirection: 'column', alignItems:'center', justifyContent: 'center'}}>
@@ -126,7 +168,10 @@ const RightPanel = ({isEdit, setIsEdit, inp, setInp}) => {
                     />
                 ))}
             </Accordion>
-            <Button onClick={() => console.log('extracting...')}>دریافت گواهی  </Button>
+            <Button onClick={() => getCertificate()} disabled={isLoading}>
+                دریافت گواهی 
+                {isLoading && <Spinner animation='border' className='me-2' size='sm'/>}
+            </Button>
         </Row>
     )
 }

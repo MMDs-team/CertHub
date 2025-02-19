@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import ReuseableTemplate from "../components/ReuseableTemplate";
 
-const History = ({ templates }) => {
+const History = () => {
+
+    const [templates, setTemplates] = useState([]);
     return (
         <Container className="mt-2 mt-md-3 mt-lg-5 px-2 px-md-3 px-lg-5">
             <Row className="mb-4">
