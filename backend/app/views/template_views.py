@@ -11,6 +11,8 @@ from docx import Document
 
 from json import loads
 
+from pdf2image import convert_from_path
+
 import os, pathlib
 import shutil
 import subprocess
@@ -44,6 +46,31 @@ def get_template(request, pk):
     except:
         message = {'detail': 'No template found with this id'}
         return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+
+def update_first_page_image(template):
+    file = template.file
+    try:
+        subprocess.run([
+            "soffice",
+            "--headless",  # Run in headless mode (no GUI)
+            "--convert-to", "pdf",
+            "--outdir", os.path.dirname(file.path),
+            file.path
+        ], check=True)
+        print(f"Conversion successful!")
+    except subprocess.CalledProcessError as e: print(f"Error during conversion: {e}")
+    except FileNotFoundError: print("Error: LibreOffice (soffice) is not installed or not in your PATH.")
+
+    pdf_file = os.path.splitext(file.path)[0] + ".pdf"
+    images = convert_from_path(pdf_file, dpi=300, first_page=1, last_page=1)
+    image_path = os.path.splitext(file.path)[0]
+    if images: images[0].save(image_path, "PNG")
+
+    template.image = image_path
+    template.save()
+
+    os.remove(pdf_file)
 
 
 @api_view(['POST'])
@@ -153,6 +180,7 @@ def make_doc(request, pk):
 
             template.is_active = True
             template.save()
+        print("Hello")
 
         return Response({
             'doc_id': doc_id
@@ -174,6 +202,7 @@ def donwload_doc(request, pk):
     try:
         file = template.file
         download_file(file_path=file.path, doc_id=find_first_file(str(pk))['id'])
+        update_first_page_image(template)
 
         return Response({
             'detail': f'Document file of Template with id={pk} have been updated.'
@@ -277,5 +306,5 @@ def get_certs(request, pk):
     timer.start()
 
     return Response({
-        'path': zip_file_path
+        'file_name': f"{template.template_id}_certs.zip"
     }, status=status.HTTP_200_OK)
