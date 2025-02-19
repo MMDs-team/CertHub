@@ -27,9 +27,22 @@ from django.conf import settings
 IMAGES_ROOT = 'static/images/templates/images'
 FILES_ROOT = 'static/images/templates/files'
 
+@api_view(['POST'])
+def template_history(request):
+    user = request.user 
+    templates = Template.objects.all().filter(owner=user).order_by('-usage')
+    serializers = TemplateSerializer(templates, many=True)
+     
+    return Response(serializers.data)
+
+
 @api_view(['GET'])
 def get_public_templates(request):
-    templates = Template.objects.all().filter(is_public=True)
+    start_index = int(request.GET.get('from', 0))
+    count = int(request.GET.get('count', 20))
+
+    templates = Template.objects.all().filter(is_public=True).order_by('-usage')
+    templates = templates[start_index:start_index + count]
     serializers = TemplateSerializer(templates, many=True)
 
     return Response(serializers.data)
@@ -73,11 +86,10 @@ def update_first_page_image(template):
 
 @api_view(['POST'])
 def create_template(request):
-    # Get the 'id' from query parameters, it can be None if not provided
     pk = request.data.get('pk')
-
-    data = request.data
+    file = request.data.get('file') 
     user = request.user 
+
     temp = Template.objects.create(
         owner = user,
         is_public = False,
@@ -85,26 +97,27 @@ def create_template(request):
         usage = 1
     )
     file_name = f'{temp.template_id}.docx'
-    image_name = f'{temp.template_id}.jpg'
+    image_name = f'{temp.template_id}.png'
 
-    if data.get('image'):
-        temp.image.save(image_name, data.get('image'))
+    if pk is not None:
+        org_temp = Template.objects.get(pk=pk)
+        temp.file.save(file_name, org_temp.file)
+        temp.image.save(image_name, org_temp.image)
+        org_temp.usage += 1 
+        org_temp.save()
+
+    elif file is not None:
+        temp.file.save(file_name, file)
+        update_first_page_image(temp)
+
     else:
-        temp.image = data.get('image')
-
-    if pk == None:
         doc = Document()
         buffer = io.BytesIO()
         doc.save(buffer)
         buffer.seek(0)
         temp.file.save(file_name, ContentFile(buffer.read()))
         buffer.close()
-
-    else:
-        org_temp = Template.objects.get(pk=pk)
-        temp.file.save(file_name, org_temp.file)
-        org_temp.usage += 1
-        org_temp.save()
+        temp.image = None
 
     temp.save()
     serializer = TemplateSerializer(temp, many=False)
@@ -117,7 +130,7 @@ def remove_template(request, pk):
         temp = Template.objects.get(pk=pk)
 
         file_name = f'{temp.template_id}.docx'
-        image_name = f'{temp.template_id}.jpg'
+        image_name = f'{temp.template_id}.png'
 
         image_path = os.path.join(settings.BASE_DIR, IMAGES_ROOT, image_name)
         file_path = os.path.join(settings.BASE_DIR, FILES_ROOT, file_name)
@@ -178,7 +191,6 @@ def make_doc(request, pk):
 
             template.is_active = True
             template.save()
-        print("Hello")
 
         return Response({
             'doc_id': doc_id
