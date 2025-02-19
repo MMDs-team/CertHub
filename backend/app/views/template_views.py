@@ -8,6 +8,7 @@ from credentials import SERVICE_ACCOUNT_FILE
 from django.core.files.base import ContentFile
 
 from docx import Document
+# from docx2pdf import convert
 
 from json import loads
 
@@ -15,8 +16,6 @@ from pdf2image import convert_from_path
 
 import os, pathlib
 import shutil
-import subprocess
-
 from threading import Timer
 
 from rest_framework.decorators import api_view
@@ -30,10 +29,23 @@ IMAGES_ROOT = 'static/images/templates/images'
 FILES_ROOT = 'static/images/templates/files'
 
 @api_view(['GET'])
-def get_public_templates(request):
-    templates = Template.objects.all().filter(is_public=True)
+def template_history(request):
+    user = request.user 
+    templates = Template.objects.all().filter(owner=user).order_by('-usage')
     serializers = TemplateSerializer(templates, many=True)
+     
+    return Response(serializers.data)
 
+
+@api_view(['GET'])
+def get_public_templates(request):
+    start_index = int(request.GET.get('from'))
+    count = int(request.GET.get('count', 20))
+
+    templates = Template.objects.all().filter(is_public=True).order_by('-usage')
+    templates = templates[start_index:start_index + count]
+    serializers = TemplateSerializer(templates, many=True)
+    
     return Response(serializers.data)
 
 
@@ -77,36 +89,36 @@ def update_first_page_image(template):
 def create_template(request):
     # Get the 'id' from query parameters, it can be None if not provided
     pk = request.data.get('pk')
+    file = request.data.get('file')
+    user = request.user
 
-    data = request.data
-    user = request.user 
     temp = Template.objects.create(
         owner = user,
         is_public = False,
         is_active = False,
         usage = 1
     )
+
     file_name = f'{temp.template_id}.docx'
-    image_name = f'{temp.template_id}.jpg'
+    image_name = f'{temp.template_id}.png'
 
-    if data.get('image'):
-        temp.image.save(image_name, data.get('image'))
+    if pk is not None:
+        org_temp = Template.objects.get(pk=pk)
+        temp.file.save(file_name, org_temp.file)
+        temp.image.save(image_name, org_temp.image)
+        org_temp.usage += 1 
+        org_temp.save()
+    elif file is not None:
+        temp.file.save(file_name, file)
+        # add image for insert file 
     else:
-        temp.image = data.get('image')
-
-    if pk == None:
         doc = Document()
         buffer = io.BytesIO()
-        doc.save(buffer)
+        doc.save(buffer) 
         buffer.seek(0)
         temp.file.save(file_name, ContentFile(buffer.read()))
         buffer.close()
-
-    else:
-        org_temp = Template.objects.get(pk=pk)
-        temp.file.save(file_name, org_temp.file)
-        org_temp.usage += 1
-        org_temp.save()
+        temp.image = None
 
     temp.save()
     serializer = TemplateSerializer(temp, many=False)
@@ -119,8 +131,8 @@ def remove_template(request, pk):
         temp = Template.objects.get(pk=pk)
 
         file_name = f'{temp.template_id}.docx'
-        image_name = f'{temp.template_id}.jpg'
-
+        image_name = f'{temp.template_id}.png'
+        
         image_path = os.path.join(settings.BASE_DIR, IMAGES_ROOT, image_name)
         file_path = os.path.join(settings.BASE_DIR, FILES_ROOT, file_name)
 
@@ -270,28 +282,16 @@ def get_certs(request, pk):
         doc.save(copy_path)
 
         cert_path = os.path.join(f"{doc_info['directory']}", f"{len(certs) + 1}.pdf")
-        # aw.Document(copy_path).save(cert_path)
-        try:
-            subprocess.run([
-                "soffice",
-                "--headless",  # Run in headless mode (no GUI)
-                "--convert-to", "pdf",
-                "--outdir", os.path.dirname(cert_path),
-                copy_path
-            ], check=True)
-            shutil.move(os.path.join(f"{doc_info['directory']}", f"{doc_info['base_name']}_copy.pdf"), cert_path)
-            certs.append(cert_path)
-            print(f"Conversion successful! PDF saved in '{cert_path}'.")
-        except subprocess.CalledProcessError as e: print(f"Error during conversion: {e}")
-        except FileNotFoundError: print("Error: LibreOffice (soffice) is not installed or not in your PATH.")
+        aw.Document(copy_path).save(cert_path)
+        certs.append(cert_path)
 
-        os.remove(copy_path)
+    os.remove(copy_path)
 
     zip_file_path = f"{doc_info['directory']}/{pk}_certs.zip"
     with zipfile.ZipFile(zip_file_path, 'w') as zipf:
         for file_path in certs:
             if os.path.exists(file_path): zipf.write(file_path, arcname=os.path.basename(file_path))
-
+            
     for cert in certs: os.remove(cert)
 
     doc = find_first_file(str(pk))
