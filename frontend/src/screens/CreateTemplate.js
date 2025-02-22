@@ -15,21 +15,22 @@ import { TemplateContext } from "../context/TemplateContext";
 
 
 const CreateTemplate = () => {
-	// const [isPublic, setIsPublic] = useState(false);
 	const [isEmpty, setIsEmpty] = useState(true);
 	const [isLoading, setIsLoading] = useState(false);
+	const [file, setFile] = useState(null);
 	const navigate = useNavigate();
-
+ 
 	const { user } = useContext(UserContext);
 	const { setTemplate } = useContext(TemplateContext);
 
 	const cancelHandler = () => {
 		navigate("/");
 	};
+
 	const createHandler = async () => {
 		try {
 			setIsLoading(true);
-			const requestBody = isEmpty ? {} : { file: "dummyFileContent" };
+			const requestBody = isEmpty ? {} : { file: file };
 			const { data } = await axios.post(
 				`http://${IP}:${PORT}/template/create`,
 				requestBody,
@@ -65,6 +66,10 @@ const CreateTemplate = () => {
 		}
 	};
 
+	const handleFileChange = (e) => {
+		setFile(e.target.files[0]);
+	};
+
 	return (
 		<div>
 			<Container style={{height: '100vh', margin: 'auto auto'}}>
@@ -81,7 +86,7 @@ const CreateTemplate = () => {
 							<Row className="g-2 px-5">
 								<Col
 									sm={6}
-									className={`border p-3 pt-sm-5 text-center bg-white ${isEmpty && "border-primary"
+									className={`border border-3 p-3 pt-sm-5 text-center bg-white ${isEmpty && "border-primary"
 										}`}
 									onClick={() => setIsEmpty(true)}
 								>
@@ -89,7 +94,7 @@ const CreateTemplate = () => {
 								</Col>
 								<Col
 									sm={6}
-									className={`border p-3 bg-white ${!isEmpty && "border-primary"}`}
+									className={`border border-3 p-3 bg-white ${!isEmpty && "border-primary"}`}
 									onClick={() => setIsEmpty(false)}
 								>
 									{
@@ -97,7 +102,8 @@ const CreateTemplate = () => {
 											<label htmlFor="formFile" className="form-label mt-4 text-center">
 												افزودن فایل Word
 											</label>
-											<input className="form-control" type="file" id="formFile" />
+											<input className="form-control" type="file" id="formFile" accept=".doc,.docx" onChange={(e) => handleFileChange(e)}/>
+											
 										</div>
 									}
 								</Col>

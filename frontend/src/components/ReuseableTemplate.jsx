@@ -47,11 +47,8 @@ return (
 			<Card.Body onClick={() => templateReuse()} style={{display: 'flex', justifyContent: 'center', position: 'relative'}}>
 					<Card.Title style={{ position: 'absolute', zIndex: '2'}} className='text-secondary'>{template.template_id}</Card.Title>
 					{isLoading && <Spinner animation="border" variant="primary" className='me-1'/>}
-					{ template.image == null ? 
-						<div style={{ height: '100%', position: 'absolute', bottom: '0', left: '0', backgroundColor: 'white', width: '100%' }} ></div>
-						: 
-						<Card.Img variant="top" src={`http://${IP}:${PORT}/images/templates/files/${template.template_id}.png`} alt="Template Image" style={{ height: '100%', position: 'absolute', bottom: '0', width: 'auto' }} />
-					}
+					{!isLoading && template.image == null && <div style={{ height: '100%', position: 'absolute', bottom: '0', left: '0', backgroundColor: 'white', width: '100%' }} ></div>}
+					{!isLoading && template.image != null && <Card.Img variant="top" src={`http://${IP}:${PORT}/images/templates/files/${template.template_id}.png`} alt="Template Image" style={{ height: '100%', position: 'absolute', bottom: '0', width: 'auto' }} />}
 			</Card.Body>
 	</Card>
 )
