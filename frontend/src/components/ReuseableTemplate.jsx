@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Card, Spinner } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { TemplateContext } from '../context/TemplateContext';
@@ -42,14 +42,19 @@ const ReuseableTemplate = ({ template }) => {
     }
     
 
-  return (
-    <Card className="bg-secondary text-dark py-4 text-center">
-        <Card.Body onClick={() => templateReuse()} style={{display: 'flex', justifyContent: 'center'}}>
-            <Card.Title>{template.template_id}</Card.Title> 
-            {isLoading && <Spinner animation="border" variant="primary" className='me-1'/>}
-        </Card.Body>
-    </Card>
-  )
+return (
+	<Card className="bg-secondary text-dark text-center p-1" style={{height: '9rem'}}>
+			<Card.Body onClick={() => templateReuse()} style={{display: 'flex', justifyContent: 'center', position: 'relative'}}>
+					<Card.Title style={{ position: 'absolute', zIndex: '2'}} className='text-secondary'>{template.template_id}</Card.Title>
+					{isLoading && <Spinner animation="border" variant="primary" className='me-1'/>}
+					{ template.image == null ? 
+						<div style={{ height: '100%', position: 'absolute', bottom: '0', left: '0', backgroundColor: 'white', width: '100%' }} ></div>
+						: 
+						<Card.Img variant="top" src={`http://${IP}:${PORT}/images/templates/files/${template.template_id}.png`} alt="Template Image" style={{ height: '100%', position: 'absolute', bottom: '0', width: 'auto' }} />
+					}
+			</Card.Body>
+	</Card>
+)
 }
 
 export default ReuseableTemplate

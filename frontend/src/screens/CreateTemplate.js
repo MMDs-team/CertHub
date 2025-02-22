@@ -33,7 +33,7 @@ const CreateTemplate = () => {
 			const { data } = await axios.post(
 				`http://${IP}:${PORT}/template/create`,
 				requestBody,
-				{
+				{ 
 					headers: {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${user.token}`,

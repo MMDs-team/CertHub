@@ -60,22 +60,27 @@ const RightPanel = ({ isEdit, setIsEdit, inp, setInp }) => {
                     },
                 }
             );
-
+            
             await getVarCount();
+            return true;
 
         } catch (err) {
             console.log("error while saving template!");
             console.log(err);
+            return false;
         } finally {
             setIsSaveLoading(false);
         }
     }
 
     const editHandler = async () => {
+
         if (isEdit) { // save it
-            await saveTemplate();
+            const status = await saveTemplate();
+            if (status) setIsEdit(false);
+        } else {
+            setIsEdit(true);
         }
-        setIsEdit(!isEdit);
     }
 
     const changeInputHandler = (e, idx, index) => {

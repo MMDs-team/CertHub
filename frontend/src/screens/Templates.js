@@ -19,10 +19,10 @@ const Templates = () => {
 			);
 
 			setTemplates(data);
-			console.log(data);
+			// console.log(data);
 		} catch (err) {
 			console.log("error while fetching templates!");
-			console.log(err);
+			// console.log(err);
 		} finally {
 			setIsLoading(false);
 		}
@@ -35,7 +35,7 @@ const Templates = () => {
 
     return (
         <Container className='mt-2 mt-md-3 mt-lg-5 px-2 px-md-3 px-lg-5'>
-            <Row className="mb-4">
+            <Row>
                 <h5 className='p-3 text-primary' style={{fontWeight: '600'}}>قالب ها</h5>
                 {(isLoading || templates.length === 0)? 
                     [...Array(12)].map((_, index) => (
@@ -52,11 +52,13 @@ const Templates = () => {
                                 <UseableTemplate template={template}/>
                             </Col>
                         ))}
-                        <Col xs={6} md={3} className="mb-3">
-                            <Button variant="outline-primary border-2" className="w-50 h-100">بیشتر</Button>
-                        </Col>
                     </>
                 }
+            </Row>
+            <Row className="mb-4">
+                <Col xs={6} md={3} className="mb-3">
+                    <Button variant="outline-primary border-2" className="w-50 h-100">بیشتر</Button>
+                </Col>
             </Row>
             <Row>
                 <h5 className='p-3 text-dark' style={{fontWeight: '600'}}>انواع</h5>
