@@ -5,7 +5,7 @@ import { IP, PORT } from "../CREDENTIALS";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 
-const History = () => {
+export const HistoryContent = ({withHeder=false}) => {
 
     const [templates, setTemplates] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -42,9 +42,9 @@ const History = () => {
     }, [])
 
     return (
-        <Container className="mt-2 mt-md-3 mt-lg-5 px-2 px-md-3 px-lg-5">
+        <>
             <Row>
-                <h5 className="p-3 text-primary font-weight-bold">قالب ها</h5>
+                { withHeder && <h5 className="p-3 text-primary font-weight-bold">قالب ها</h5>}
 
                 
                 {(isLoading || templates.length === 0) ? 
@@ -69,8 +69,16 @@ const History = () => {
                     </Button>
                 </Col>
             </Row>
-        </Container>
+        </>
     );
 };
 
-export default History;
+
+export const History = () => {
+  return (
+    
+    <Container className="mt-2 mt-md-3 mt-lg-5 px-2 px-md-3 px-lg-5">
+        <HistoryContent withHeder={true}/>
+    </Container>
+  )
+}

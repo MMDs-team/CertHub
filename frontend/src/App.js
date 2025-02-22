@@ -5,7 +5,7 @@ import Home from './screens/Home';
 import About from './screens/About';
 import Auth from './screens/Auth';
 import Profile from './screens/Profile';
-import History from './screens/History';
+import { History } from './screens/History';
 import { UserContext } from './context/UserContext';
 import Redirect from './components/Redirect';
 import './App.css';

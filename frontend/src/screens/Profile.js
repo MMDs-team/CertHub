@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
+import { HistoryContent } from './History';
 
 
 
@@ -77,7 +78,8 @@ const Profile = () => {
             <Col className='g-5'>
               <Card style={{backgroundColor: '#f0f2ff'}}>
                 <Card.Header as="h5"  className='bg-dark text-white'>قالب های من</Card.Header>
-                <Card.Body>
+                <Card.Body className='px-lg-4'>
+                  <HistoryContent />
                 </Card.Body>
               </Card>
             </Col>
